@@ -1,6 +1,18 @@
 const startTime = Date.now();
 
+// Force scroll to top on refresh
+if (history.scrollRestoration) {
+    history.scrollRestoration = 'manual';
+}
+
+window.addEventListener('beforeunload', () => {
+    window.scrollTo(0, 0);
+});
+
 document.addEventListener("DOMContentLoaded", () => {
+    window.scrollTo(0, 0);
+    setTimeout(() => { window.scrollTo(0, 0); }, 50);
+
     /* Lenis Scroll */
     if (typeof Lenis !== 'undefined') {
         const lenis = new Lenis({
@@ -162,12 +174,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     end: "+=5000", // Increased to give plenty of scrolling room for the video
                     scrub: 1,
                     pin: true,
-                    anticipatePin: 1
+                    anticipatePin: 1,
+                    invalidateOnRefresh: true // Recalculate on resize
                 }
             });
 
-            // Fade out title
+            // Fade out title, collapse side cards and gaps
             tlGallery.to(".gallery-title", { opacity: 0, y: -50, duration: 0.5 }, 0)
+                     .to(".gallery-container", { gap: 0, duration: 0.8, ease: "power2.inOut" }, 0)
+                     .to(".gallery-card:not(.center-card)", { width: 0, opacity: 0, duration: 0.8, ease: "power2.inOut" }, 0)
                      
             // Expand center card to fill the screen
                      .to(".center-card", {
@@ -318,6 +333,201 @@ document.addEventListener("DOMContentLoaded", () => {
                 $datepicker.style.left = (coords.left + scrollX) + 'px';
                 $datepicker.style.top = top + 'px';
             }
+        });
+    }
+    // Interactive Machine Section Logic
+    const interactiveSection = document.getElementById('interactive-machine-section');
+    if (interactiveSection) {
+        const coffeeData = [
+            {
+                title: "Signature Espresso",
+                desc: "Bold, Smooth And Unforgettable. The foundation of our coffee.",
+                img: "./assets/coffee_machine/cup_1.png"
+            },
+            {
+                title: "Caramel Macchiato",
+                desc: "Sweet, creamy, and topped with rich caramel drizzle.",
+                img: "./assets/coffee_machine/cup_2.png"
+            },
+            {
+                title: "Vanilla Latte",
+                desc: "A comforting blend of vanilla and smooth espresso.",
+                img: "./assets/coffee_machine/cup_3.png"
+            },
+            {
+                title: "Mocha Frappuccino",
+                desc: "Chilled chocolatey perfection for warm summer days.",
+                img: "./assets/coffee_machine/cup_4.png"
+            },
+            {
+                title: "Classic Americano",
+                desc: "Simple, strong, and straightforward roasted flavor.",
+                img: "./assets/coffee_machine/cup_5.png"
+            },
+            {
+                title: "Creamy Cappuccino",
+                desc: "Perfectly frothed milk over a rich espresso base.",
+                img: "./assets/coffee_machine/cup_6.png"
+            }
+        ];
+
+        const orbitContainer = document.getElementById('orbit-container');
+        const trayImg = document.getElementById('tray-cup-img');
+        const displayImg = document.getElementById('display-cup-img');
+        const displayTitle = document.getElementById('display-title');
+        const displayDesc = document.getElementById('display-desc');
+        
+        let activeIndex = -1;
+        let rotationAngle = 0;
+        const totalCups = coffeeData.length;
+        
+        // Responsive radii
+        const getRadii = () => {
+            const width = window.innerWidth;
+            if (width < 640) { // sm
+                return { x: 110, y: 150 };
+            } else if (width < 1024) { // md and lg (tablet)
+                return { x: 180, y: 240 };
+            } else { // desktop
+                return { x: 250, y: 320 };
+            }
+        };
+
+        // Create Cups
+        coffeeData.forEach((coffee, index) => {
+            const cupWrapper = document.createElement('div');
+            cupWrapper.className = 'absolute w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 cursor-pointer overflow-visible transform transition-all duration-300 hover:scale-125 pointer-events-auto z-40';
+            
+            const img = document.createElement('img');
+            img.src = coffee.img;
+            img.className = 'w-full h-full object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]';
+            
+            cupWrapper.appendChild(img);
+            orbitContainer.appendChild(cupWrapper);
+            
+            // Add Click Event
+            cupWrapper.addEventListener('click', () => {
+                // Reset interval timer when user clicks
+                clearInterval(autoCycleInterval);
+                setActiveCup(index);
+                startAutoCycle();
+            });
+        });
+
+        const cups = orbitContainer.querySelectorAll('div');
+
+        function updateOrbitPositions() {
+            const radii = getRadii();
+            cups.forEach((cup, i) => {
+                const angle = rotationAngle + (i * (360 / totalCups));
+                const rad = angle * (Math.PI / 180);
+                const x = Math.cos(rad) * radii.x;
+                const y = Math.sin(rad) * radii.y;
+                
+                // Adding depth sorting (closer cups should have higher z-index and be slightly larger)
+                const zIndex = Math.round((Math.sin(rad) + 1) * 50) + 10;
+                const scale = ((Math.sin(rad) + 1) * 0.2) + 0.8; // scale between 0.8 and 1.2
+                
+                cup.style.zIndex = zIndex;
+
+                gsap.to(cup, {
+                    x: x,
+                    y: y,
+                    scale: scale,
+                    duration: 0.1,
+                    ease: "none"
+                });
+            });
+        }
+
+        // Initialize positions
+        updateOrbitPositions();
+
+        // Handle Resize
+        window.addEventListener('resize', updateOrbitPositions);
+
+        // Animate orbit slowly
+        gsap.to({ value: 0 }, {
+            value: 360,
+            duration: 25, // slower rotation
+            repeat: -1,
+            ease: "none",
+            onUpdate: function() {
+                rotationAngle = this.targets()[0].value;
+                updateOrbitPositions();
+            }
+        });
+
+        function setActiveCup(index) {
+            if (activeIndex === index) return;
+            activeIndex = index;
+            const coffee = coffeeData[index];
+
+            // Animate Tray (fade out old, fade in new with scale)
+            trayImg.style.opacity = '0';
+            trayImg.style.transform = 'scale(0.5)';
+            
+            // Animate Display Side
+            displayTitle.style.opacity = '0';
+            displayTitle.style.transform = 'translateY(15px)';
+            displayDesc.style.opacity = '0';
+            displayDesc.style.transform = 'translateY(15px)';
+            displayImg.style.opacity = '0';
+            displayImg.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+                trayImg.src = coffee.img;
+                displayImg.src = coffee.img;
+                displayTitle.textContent = coffee.title;
+                displayDesc.textContent = coffee.desc;
+                
+                // Show Tray
+                trayImg.style.opacity = '1';
+                trayImg.style.transform = 'scale(1)';
+
+                // Show Display
+                displayTitle.style.opacity = '1';
+                displayTitle.style.transform = 'translateY(0)';
+                displayDesc.style.opacity = '1';
+                displayDesc.style.transform = 'translateY(0)';
+                displayImg.style.opacity = '1';
+                displayImg.style.transform = 'scale(1)';
+            }, 400); // Wait for fade out
+        }
+
+        // Set initial active cup
+        setActiveCup(0);
+
+        // Auto Cycle
+        let autoCycleInterval;
+        function startAutoCycle() {
+            autoCycleInterval = setInterval(() => {
+                const nextIndex = (activeIndex + 1) % totalCups;
+                setActiveCup(nextIndex);
+            }, 4000); // Change every 4 seconds
+        }
+        
+        startAutoCycle();
+    }
+
+    // Go To Top Button Logic
+    const goToTopBtn = document.getElementById('go-to-top');
+    if (goToTopBtn) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                goToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                goToTopBtn.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                goToTopBtn.classList.remove('opacity-100', 'pointer-events-auto');
+                goToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+            }
+        });
+
+        goToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         });
     }
 });
