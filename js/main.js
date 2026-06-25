@@ -140,6 +140,70 @@ document.addEventListener("DOMContentLoaded", () => {
                 onLeaveBack: () => tl.reverse()
             });
         });
+
+        // Bestsellers Coverflow Gallery Animation
+        const gallerySection = document.getElementById('bestsellers-section');
+        if (gallerySection) {
+            // Preload Image Sequence for video effect
+            const frameCount = 381;
+            const sequenceImages = [];
+            for (let i = 1; i <= frameCount; i++) {
+                const img = new Image();
+                img.src = `./assets/coffee_frames/${String(i).padStart(5, '0')}.webp`;
+                sequenceImages.push(img);
+            }
+            const seqObj = { frame: 0 };
+            const sequenceImg = document.getElementById('sequence-img');
+
+            const tlGallery = gsap.timeline({
+                scrollTrigger: {
+                    trigger: gallerySection,
+                    start: "top top",
+                    end: "+=5000", // Increased to give plenty of scrolling room for the video
+                    scrub: 1,
+                    pin: true,
+                    anticipatePin: 1
+                }
+            });
+
+            // Fade out title
+            tlGallery.to(".gallery-title", { opacity: 0, y: -50, duration: 0.5 }, 0)
+                     
+            // Expand center card to fill the screen
+                     .to(".center-card", {
+                         width: "100vw",
+                         height: "100vh",
+                         borderRadius: "0px",
+                         duration: 1,
+                         ease: "power2.inOut"
+                     }, 0);
+
+            // Play the image sequence on scroll
+            const expandedContent = document.querySelector('.expanded-content');
+            if (sequenceImg) {
+                tlGallery.to(seqObj, {
+                    frame: frameCount - 1,
+                    snap: "frame",
+                    ease: "none",
+                    onUpdate: () => {
+                        const frameIdx = Math.round(seqObj.frame);
+                        if (sequenceImages[frameIdx] && sequenceImages[frameIdx].complete && sequenceImages[frameIdx].naturalWidth > 0) {
+                            sequenceImg.src = sequenceImages[frameIdx].src;
+                        }
+                        
+                        // Show text overlay only between frames 42 and 222 (indices 41 to 221)
+                        if (expandedContent) {
+                            if (frameIdx >= 41 && frameIdx <= 221) {
+                                expandedContent.style.opacity = "1";
+                            } else {
+                                expandedContent.style.opacity = "0";
+                            }
+                        }
+                    },
+                    duration: 8
+                }, 1.5); // Wait until expansion is complete before starting video
+            }
+        }
     }
 
     // Custom Dropdown Logic

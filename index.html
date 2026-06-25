@@ -7,7 +7,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -23,6 +23,7 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         serif: ['Playfair Display', 'serif'],
+                        anton: ['"Anton SC"', 'sans-serif'],
                     }
                 }
             }
@@ -201,18 +202,18 @@
         </div>
     </section>
 
-    <!-- Bestsellers Section -->
+    <!-- 3-Card Bestsellers Grid -->
     <section class="w-full bg-[#170E0A] relative py-32 px-6 overflow-hidden flex items-center justify-center">
         <!-- Background Beans -->
         <div class="absolute inset-0 w-full h-full opacity-10 pointer-events-none" style="background-image: url('https://images.unsplash.com/photo-1559525839-b184a4d698c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center; mix-blend-mode: overlay;"></div>
         
         <div class="max-w-[1200px] mx-auto w-full relative z-10">
             <div class="text-center mb-32">
-                <h2 class="text-3xl md:text-5xl font-bold text-[#E6D5C3] uppercase tracking-wider mb-4">BEST SELLERS</h2>
-                <p class="text-[#E6D5C3]/70 text-lg">Try our most popular blends</p>
+                <h2 class="text-3xl md:text-5xl font-bold text-[#E6D5C3] uppercase tracking-wider mb-4">CLASSIC PICKS</h2>
+                <p class="text-[#E6D5C3]/70 text-lg">Our traditional bestsellers</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 lg:gap-8 mt-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-6 lg:gap-8 mt-16">
                 <!-- Card 1 -->
                 <div class="group relative w-full h-[450px] rounded-[2rem] bg-[#110B08] overflow-hidden isolate shadow-2xl border border-[#D5A071]/20 cursor-pointer transition-colors duration-500">
                     <img src="https://images.unsplash.com/photo-1585494156145-1c60a4fe952b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Caramel Latte" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-50 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] z-0">
@@ -314,41 +315,80 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
 
-                <!-- Card 4 -->
-                <div class="group relative w-full h-[450px] rounded-[2rem] bg-[#110B08] overflow-hidden isolate shadow-2xl border border-[#D5A071]/20 cursor-pointer transition-colors duration-500">
-                    <img src="https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Iced Mocha" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-50 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] z-0">
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#0A0705] via-[#0A0705]/80 to-transparent z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+    <!-- Coverflow Gallery Section -->
+    <section id="bestsellers-section" class="w-full bg-[#170E0A] relative h-[100vh] overflow-hidden">
+        <!-- Background Beans -->
+        <div class="absolute inset-0 w-full h-full opacity-10 pointer-events-none" style="background-image: url('https://images.unsplash.com/photo-1559525839-b184a4d698c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center; mix-blend-mode: overlay;"></div>
+        
+        <div class="gallery-title absolute top-12 md:top-20 left-0 w-full text-center z-50 transition-opacity duration-500 pointer-events-none">
+            <h2 class="text-3xl md:text-5xl font-bold text-[#E6D5C3] uppercase tracking-wider mb-2">GALLERY</h2>
+            <p class="text-[#E6D5C3]/70 text-lg">Explore our rich collection</p>
+        </div>
 
-                    <div class="absolute top-6 left-6 z-20">
-                        <div class="flex items-center gap-2 bg-[#1A110C]/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 opacity-0 -translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                            <div class="w-2 h-2 rounded-full bg-[#D5A071]"></div>
-                            <span class="text-[10px] font-semibold text-[#FDFBF7] uppercase tracking-widest">Best Seller</span>
-                        </div>
+        <div class="gallery-container absolute inset-0 flex items-center justify-center gap-4 md:gap-6 lg:gap-8 w-full h-full">
+            
+            <!-- Side Card Left 2 -->
+            <div class="gallery-card side-card-l2 w-[140px] h-[220px] lg:w-[200px] lg:h-[300px] rounded-[1rem] bg-[#110B08] overflow-hidden opacity-40 hidden md:block border border-[#D5A071]/10 shadow-2xl flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Cappuccino" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Side Card Left 1 -->
+            <div class="gallery-card side-card-l1 w-[200px] h-[300px] lg:w-[280px] lg:h-[400px] rounded-[1.5rem] bg-[#110B08] overflow-hidden opacity-70 hidden sm:block border border-[#D5A071]/20 shadow-2xl flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Espresso" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Center Card -->
+            <div class="gallery-card center-card relative w-[280px] h-[380px] md:w-[350px] md:h-[480px] lg:w-[400px] lg:h-[550px] rounded-[2rem] bg-[#110B08] overflow-hidden z-30 shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-[#D5A071]/30 flex-shrink-0">
+                <img id="sequence-img" src="./assets/coffee_bean.webp" alt="Caramel Latte" class="w-full h-full object-cover z-0 relative">
+                
+                <!-- Expanded Overlay Content -->
+                <div class="expanded-content absolute inset-0 z-20 opacity-0 pointer-events-none transition-opacity duration-500">
+                    <!-- Central Text -->
+                    <div class="absolute top-[10%] md:top-[12%] left-1/2 -translate-x-1/2 flex flex-col items-center text-center w-full">
+                        <h2 class="text-6xl md:text-[8rem] font-anton text-[#8B5A33] uppercase tracking-normal leading-none z-10 relative" style="line-height: 2;">SPECIAL</h2>
+                        <h1 class="text-7xl md:text-[8rem] font-anton text-[#E8B031] uppercase tracking-normal leading-[0.6] -mt-6 md:-mt-16 drop-shadow-[0_10px_10px_rgba(0,0,0,0.15)] z-20 relative" style="line-height: 0.5;">COFFEE</h1>
                     </div>
 
-                    <button class="absolute top-6 right-6 z-20 w-10 h-10 rounded-full bg-[#1A110C]/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-[#FDFBF7] opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 delay-100 hover:bg-[#D5A071] hover:text-[#1A110C] hover:border-[#D5A071]">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </button>
+                    <!-- Top Left -->
+                    <div class="absolute top-[35%] md:top-[30%] left-[8%] md:left-[10%] max-w-[150px] md:max-w-[250px]">
+                        <h3 class="text-lg md:text-3xl font-anton text-[#110B08] uppercase mb-1 md:mb-2">RICH AROMA</h3>
+                        <p class="text-[#33251A] text-[10px] md:text-sm font-medium leading-relaxed">Premium Beans For Premium Moments.</p>
+                    </div>
 
-                    <div class="absolute inset-x-0 bottom-0 z-10 p-6 flex flex-col justify-end opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-150">
-                        <span class="text-[#D5A071] font-sans text-xs font-semibold tracking-widest uppercase mb-1">Refreshing</span>
-                        <h3 class="text-3xl font-serif text-[#FDFBF7] mb-3">Iced Mocha</h3>
-                        <p class="text-[#A39991] text-sm leading-relaxed mb-6">
-                            Chilled espresso and milk with premium chocolate syrup, served over ice for a cool boost.
-                        </p>
-                        
-                        <div class="flex items-center justify-between">
-                            <span class="text-2xl font-bold text-[#FDFBF7]">$4.50</span>
-                            <button class="bg-[#D5A071] text-[#1A110C] font-semibold px-6 py-2.5 rounded-full hover:bg-[#FDFBF7] transition-all duration-300 transform hover:scale-105">
-                                Order Now
-                            </button>
-                        </div>
+                    <!-- Top Right -->
+                    <div class="absolute top-[35%] md:top-[30%] right-[8%] md:right-[10%] max-w-[150px] md:max-w-[250px] text-right">
+                        <h3 class="text-lg md:text-3xl font-anton text-[#110B08] uppercase mb-1 md:mb-2">BOLD TASTE</h3>
+                        <p class="text-[#33251A] text-[10px] md:text-sm font-medium leading-relaxed">Supporting Farms And Communities Responsibly.</p>
+                    </div>
+
+                    <!-- Bottom Left -->
+                    <div class="absolute bottom-[25%] md:bottom-[20%] left-[8%] md:left-[10%] max-w-[150px] md:max-w-[250px]">
+                        <h3 class="text-lg md:text-3xl font-anton text-[#110B08] uppercase mb-1 md:mb-2">QUALITY ROAST</h3>
+                        <p class="text-[#33251A] text-[10px] md:text-sm font-medium leading-relaxed">Old Flavor Starts With Perfect Roasting.</p>
+                    </div>
+
+                    <!-- Bottom Right -->
+                    <div class="absolute bottom-[25%] md:bottom-[20%] right-[8%] md:right-[10%] max-w-[150px] md:max-w-[250px] text-right">
+                        <h3 class="text-lg md:text-3xl font-anton text-[#110B08] uppercase mb-1 md:mb-2">NATURAL GOODNESS</h3>
+                        <p class="text-[#33251A] text-[10px] md:text-sm font-medium leading-relaxed">Unlocking Flavor Through Expert Roasting.</p>
                     </div>
                 </div>
             </div>
+
+            <!-- Side Card Right 1 -->
+            <div class="gallery-card side-card-r1 w-[200px] h-[300px] lg:w-[280px] lg:h-[400px] rounded-[1.5rem] bg-[#110B08] overflow-hidden opacity-70 hidden sm:block border border-[#D5A071]/20 shadow-2xl flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Iced Mocha" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Side Card Right 2 -->
+            <div class="gallery-card side-card-r2 w-[140px] h-[220px] lg:w-[200px] lg:h-[300px] rounded-[1rem] bg-[#110B08] overflow-hidden opacity-40 hidden md:block border border-[#D5A071]/10 shadow-2xl flex-shrink-0">
+                <img src="https://images.unsplash.com/photo-1557006021-b85faa2bc5e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Iced Coffee" class="w-full h-full object-cover">
+            </div>
+
         </div>
     </section>
 
