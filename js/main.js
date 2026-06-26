@@ -908,6 +908,26 @@ document.addEventListener("DOMContentLoaded", () => {
             activeIndex = index;
             const coffee = coffeeData[index];
 
+            // Highlight the active cup in the orbit
+            if (cups && cups.length > 0) {
+                cups.forEach((cup, idx) => {
+                    const img = cup.querySelector('img');
+                    if (idx === index) {
+                        cup.classList.add('scale-125', 'z-50');
+                        if (img) {
+                            img.classList.remove('drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]');
+                            img.classList.add('drop-shadow-[0_0_30px_rgba(200,80,0,0.9)]');
+                        }
+                    } else {
+                        cup.classList.remove('scale-125', 'z-50');
+                        if (img) {
+                            img.classList.remove('drop-shadow-[0_0_30px_rgba(200,80,0,0.9)]');
+                            img.classList.add('drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]');
+                        }
+                    }
+                });
+            }
+
             clearTimeout(fallbackTimeout);
             clearTimeout(changeTimeout);
 
