@@ -15,26 +15,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* Lenis Scroll */
     if (typeof Lenis !== 'undefined') {
-        const lenis = new Lenis({
-            smooth: true,
-            multiplier: 1,
-            easing: (t) => t * (2 - t),
-            smoothTouch: true,
-            lerp: 0.05,
-            duration: 1.2
-        });
+        const lenis = new Lenis();
+        window.lenis = lenis;
 
-        function raf(time) {
-            lenis.raf(time);
+        if (typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            ScrollTrigger.config({ ignoreMobileResize: true }); // Prevent random layout jumps on scroll
+            
+            // Sync Lenis scroll with ScrollTrigger
+            lenis.on('scroll', ScrollTrigger.update);
+            
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+            
+            gsap.ticker.lagSmoothing(0, 0);
+        } else {
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
             requestAnimationFrame(raf);
         }
 
-        requestAnimationFrame(raf);
-        
-        if (typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-            ScrollTrigger.normalizeScroll(true);
-        }
+        // Handle anchor links with Lenis
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                
+                if (href === '#') {
+                    lenis.scrollTo(0);
+                    return;
+                }
+
+                const target = document.querySelector(href);
+                if (target) {
+                    let scrollTarget = target;
+                    
+                    // If the section is pinned by ScrollTrigger, scroll to its exact calculated start position
+                    if (typeof ScrollTrigger !== 'undefined') {
+                        const st = ScrollTrigger.getAll().find(s => s.trigger === target && s.pin);
+                        if (st) {
+                            scrollTarget = st.start;
+                        }
+                    }
+                    
+                    lenis.scrollTo(scrollTarget, { offset: 0 });
+                }
+            });
+        });
     }
 
     // Sticky Navbar Logic
@@ -112,13 +142,262 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof ScrollTrigger !== "undefined") {
         gsap.registerPlugin(ScrollTrigger);
 
+        // Hero Section Canvas Animation
+        const heroCanvas = document.getElementById('hero-canvas');
+        const heroSection = document.getElementById('hero-section');
+        if (heroCanvas && heroSection) {
+            const context = heroCanvas.getContext('2d');
+            const heroFrameCount = 192;
+            const heroImages = [];
+            const heroSeq = { frame: 0 };
+            
+            // Preload hero images
+            for (let i = 1; i <= heroFrameCount; i++) {
+                const img = new Image();
+                img.src = `./assets/Coffee_hero_section/${String(i).padStart(5, '0')}.webp`;
+                heroImages.push(img);
+            }
+            
+            // Set canvas size based on first image
+            heroImages[0].onload = () => {
+                heroCanvas.width = heroImages[0].width;
+                heroCanvas.height = heroImages[0].height;
+                context.drawImage(heroImages[0], 0, 0);
+            };
+            
+            const renderHeroFrame = () => {
+                if (heroImages[heroSeq.frame] && heroImages[heroSeq.frame].complete) {
+                    context.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+                    context.drawImage(heroImages[heroSeq.frame], 0, 0);
+                }
+            };
+            
+            gsap.to(heroSeq, {
+                frame: heroFrameCount - 1,
+                snap: "frame",
+                ease: "none",
+                scrollTrigger: {
+                    trigger: heroSection,
+                    start: "top top",
+                    end: "+=2000",
+                    scrub: true,
+                    pin: true,
+                    anticipatePin: 1
+                },
+                onUpdate: renderHeroFrame
+            });
+        }
+
+        // Bestsellers Slider Animation (5-Card Horizontal Scroll)
+        const sliderSection = document.getElementById('bestsellers-slider');
+        const cardsContainer = document.getElementById('slider-cards-container');
+        const sliderDragArea = document.getElementById('slider-drag-area');
+        const bgContainer = document.getElementById('slider-bg-container');
+        const cards = document.querySelectorAll('.slider-card');
+        const bgs = document.querySelectorAll('.slider-bg');
+        const titleEl = document.getElementById('slider-title');
+        const descEl = document.getElementById('slider-desc');
+        const priceEl = document.getElementById('slider-price');
+
+        if (sliderSection && cardsContainer && cards.length > 0) {
+            const cardData = [
+                { title: "Caramel<br>Latte", desc: "Experience the perfect blend of rich espresso and velvety caramel, topped with a delicate foam.", price: "$4.50" },
+                { title: "Classic<br>Cappuccino", desc: "A traditional Italian favorite featuring equal parts espresso, steamed milk, and airy milk froth.", price: "$3.80" },
+                { title: "Pure<br>Espresso", desc: "A concentrated shot of our finest dark roast, delivering a bold and intense flavor profile.", price: "$2.50" },
+                { title: "Iced<br>Macchiato", desc: "Chilled milk poured over ice and marked with a robust shot of espresso for a refreshing lift.", price: "$4.00" },
+                { title: "Mocha<br>Frappe", desc: "An indulgent frozen blend of rich chocolate, espresso, and milk, finished with whipped cream.", price: "$5.00" }
+            ];
+            let currentIndex = 0;
+            let textAnim = null;
+
+            const updateSliderActive = (index) => {
+                if (currentIndex === index) return;
+                
+                if (cards[currentIndex]) {
+                    cards[currentIndex].classList.remove('border-[#D5A071]', 'opacity-100');
+                    cards[currentIndex].classList.add('border-transparent', 'opacity-50');
+                }
+                
+                currentIndex = index;
+                
+                if (cards[currentIndex]) {
+                    cards[currentIndex].classList.remove('border-transparent', 'opacity-50');
+                    cards[currentIndex].classList.add('border-[#D5A071]', 'opacity-100');
+                }
+                
+                if (titleEl && cardData[currentIndex]) {
+                    const newTitle = cardData[currentIndex].title;
+                    const newDesc = cardData[currentIndex].desc;
+                    const newPrice = cardData[currentIndex].price;
+
+                    if (textAnim) textAnim.kill();
+
+                    textAnim = gsap.timeline();
+
+                    // Animate out fast
+                    textAnim.to([titleEl, descEl, priceEl], {
+                        opacity: 0,
+                        scale: 0.98,
+                        filter: "blur(4px)",
+                        duration: 0.1,
+                        ease: "power1.in",
+                        onComplete: () => {
+                            // Swap content when fully hidden
+                            if (titleEl) titleEl.innerHTML = newTitle;
+                            if (descEl) descEl.innerHTML = newDesc;
+                            if (priceEl) priceEl.innerHTML = newPrice;
+                            // Reset filter in case GSAP leaves a remnant
+                            gsap.set([titleEl, descEl, priceEl], { clearProps: "filter" });
+                        }
+                    })
+                    // Animate in fast
+                    .fromTo([titleEl, descEl, priceEl], 
+                        { scale: 1.02, opacity: 0, filter: "blur(4px)" },
+                        { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.15, ease: "power2.out" }
+                    );
+                }
+            };
+
+                // Calculate exact slide distance to ensure movement
+                const getSlideDistance = () => {
+                    const cardWidth = cards[0].offsetWidth;
+                    const gap = parseInt(window.getComputedStyle(cardsContainer).gap) || 24;
+                    return (cardWidth + gap) * (cards.length - 1);
+                };
+
+                // Clone first 3 cards to fill the empty right-side gap when reaching the last card
+                const clonesCount = 3;
+                for (let i = 0; i < clonesCount; i++) {
+                    if (cards[i]) {
+                        const clone = cards[i].cloneNode(true);
+                        // Ensure clones are visually inactive
+                        clone.classList.remove('border-[#D5A071]', 'opacity-100');
+                        clone.classList.add('border-transparent', 'opacity-50');
+                        cardsContainer.appendChild(clone);
+                    }
+                }
+
+                const slideDistance = getSlideDistance();
+                const scrollDistance = 2500; // Total vertical scroll allocated for the slider
+
+                const sliderAnim = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: sliderSection,
+                        start: "top top",
+                        end: "+=" + scrollDistance,
+                        scrub: true,
+                        pin: true,
+                        invalidateOnRefresh: true,
+                        onUpdate: (self) => {
+                            let progress = self.progress;
+                            if (progress === 1) progress = 0.999;
+                            const index = Math.floor(progress * cards.length);
+                            updateSliderActive(index);
+                        }
+                    }
+                });
+
+                sliderAnim.to(cardsContainer, {
+                    x: -slideDistance,
+                    ease: "none",
+                    duration: cards.length - 1
+                }, 0);
+
+                if (bgContainer) {
+                    bgs.forEach((bg, i) => {
+                        if (i > 0) {
+                            sliderAnim.to(bg, {
+                                x: "0%",
+                                ease: "none",
+                                duration: 1
+                            }, i - 1);
+                        }
+                    });
+                }
+
+                // Manual Drag to Scroll mapping
+                if (sliderDragArea) {
+                    let isDragging = false;
+                    let dragHasMoved = false;
+                    let startX;
+                    let startScrollY;
+
+                    const startDrag = (e) => {
+                        isDragging = true;
+                        dragHasMoved = false;
+                        startX = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+                        startScrollY = window.scrollY;
+                        sliderDragArea.classList.add('cursor-grabbing');
+                        sliderDragArea.classList.remove('cursor-grab');
+                    };
+
+                    const stopDrag = () => {
+                        isDragging = false;
+                        sliderDragArea.classList.remove('cursor-grabbing');
+                        sliderDragArea.classList.add('cursor-grab');
+                    };
+
+                    const doDrag = (e) => {
+                        if (!isDragging) return;
+                        e.preventDefault();
+                        const currentX = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+                        
+                        if (Math.abs(startX - currentX) > 5) {
+                            dragHasMoved = true;
+                        }
+                        
+                        // Exact 1:1 mapping: 1px of horizontal drag = exactly 1px of horizontal visual slide
+                        const dragRatio = scrollDistance / slideDistance;
+                        const walk = (startX - currentX) * dragRatio; 
+                        
+                        if (window.lenis) {
+                            window.lenis.scrollTo(startScrollY + walk, { immediate: true });
+                        } else {
+                            window.scrollTo(0, startScrollY + walk);
+                        }
+                    };
+
+                    sliderDragArea.addEventListener('mousedown', startDrag);
+                    sliderDragArea.addEventListener('touchstart', startDrag, {passive: true});
+                    
+                    window.addEventListener('mouseup', stopDrag);
+                    window.addEventListener('touchend', stopDrag);
+                    
+                    sliderDragArea.addEventListener('mousemove', doDrag);
+                    sliderDragArea.addEventListener('touchmove', doDrag, {passive: false});
+                    
+                    // Click to Auto-Slide logic
+                    cards.forEach((card, idx) => {
+                        card.style.pointerEvents = 'auto';
+                        card.classList.add('cursor-pointer');
+                        
+                        card.addEventListener('click', (e) => {
+                            if (dragHasMoved) return; // Prevent click if user was dragging
+                            
+                            const st = sliderAnim.scrollTrigger;
+                            if (st) {
+                                const targetProgress = idx / (cards.length - 1);
+                                const targetScroll = st.start + (targetProgress * scrollDistance);
+                                
+                                if (window.lenis) {
+                                    window.lenis.scrollTo(targetScroll, { duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+                                } else {
+                                    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                                }
+                            }
+                        });
+                    });
+                }
+        }
+
+
         // Text Color Animation
         gsap.to(".color-word", {
             scrollTrigger: {
                 trigger: ".statement-text",
                 start: "top 85%",
                 end: "bottom 60%",
-                scrub: 1
+                scrub: true
             },
             color: "#33251A",
             stagger: 0.05
@@ -152,12 +431,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 onLeaveBack: () => tl.reverse()
             });
         });
-
         // Bestsellers Coverflow Gallery Animation
         const gallerySection = document.getElementById('bestsellers-section');
         if (gallerySection) {
             // Preload Image Sequence for video effect
-            const frameCount = 381;
+            const frameCount = 349;
             const sequenceImages = [];
             for (let i = 1; i <= frameCount; i++) {
                 const img = new Image();
@@ -171,11 +449,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 scrollTrigger: {
                     trigger: gallerySection,
                     start: "top top",
-                    end: "+=5000", // Increased to give plenty of scrolling room for the video
-                    scrub: 1,
+                    end: "+=5000",
+                    scrub: true,
                     pin: true,
-                    anticipatePin: 1,
-                    invalidateOnRefresh: true // Recalculate on resize
+                    invalidateOnRefresh: true
                 }
             });
 
@@ -195,6 +472,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Play the image sequence on scroll
             const expandedContent = document.querySelector('.expanded-content');
+            let isGalleryTextVisible = false;
+            let galleryTextsTl = null;
+
+            if (expandedContent) {
+                const centerText = expandedContent.querySelector('.text-center');
+                const leftTexts = Array.from(expandedContent.children).filter(el => !el.classList.contains('text-center') && !el.classList.contains('text-right'));
+                const rightTexts = Array.from(expandedContent.children).filter(el => el.classList.contains('text-right'));
+
+                galleryTextsTl = gsap.timeline({ paused: true });
+                
+                if (centerText) {
+                    galleryTextsTl.fromTo(centerText, 
+                        { scale: 0.8, opacity: 0 }, 
+                        { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.5)" }
+                    );
+                }
+                if (leftTexts.length > 0) {
+                    galleryTextsTl.fromTo(leftTexts, 
+                        { x: -60, opacity: 0 }, 
+                        { x: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }, 
+                        "-=0.4"
+                    );
+                }
+                if (rightTexts.length > 0) {
+                    galleryTextsTl.fromTo(rightTexts, 
+                        { x: 60, opacity: 0 }, 
+                        { x: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }, 
+                        "-=0.5"
+                    );
+                }
+            }
+
             if (sequenceImg) {
                 tlGallery.to(seqObj, {
                     frame: frameCount - 1,
@@ -206,18 +515,135 @@ document.addEventListener("DOMContentLoaded", () => {
                             sequenceImg.src = sequenceImages[frameIdx].src;
                         }
                         
-                        // Show text overlay only between frames 42 and 222 (indices 41 to 221)
+                        // Show text overlay only between frames 42 and 222
                         if (expandedContent) {
                             if (frameIdx >= 41 && frameIdx <= 221) {
                                 expandedContent.style.opacity = "1";
+                                if (!isGalleryTextVisible && galleryTextsTl) {
+                                    isGalleryTextVisible = true;
+                                    galleryTextsTl.play();
+                                }
                             } else {
                                 expandedContent.style.opacity = "0";
+                                if (isGalleryTextVisible && galleryTextsTl) {
+                                    isGalleryTextVisible = false;
+                                    galleryTextsTl.reverse();
+                                }
                             }
                         }
                     },
                     duration: 8
-                }, 1.5); // Wait until expansion is complete before starting video
+                }, 1.5);
             }
+        }
+
+        // --- Generic Section Text Reveal Animations --- //
+        
+        // 1. Statement Section
+        const statementLines = document.querySelectorAll('.statement-line');
+        statementLines.forEach((line, index) => {
+            gsap.from(line, {
+                scrollTrigger: {
+                    trigger: line,
+                    start: "top 85%",
+                    toggleActions: "play reverse play reverse"
+                },
+                x: index % 2 === 0 ? -50 : 50,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+        });
+
+        // 2. Interactive Machine Section Elements
+        const machineLeft = document.querySelector('#interactive-machine-section .lg\\:w-1\\/2:first-child');
+        const machineRight = document.querySelector('#interactive-machine-section .lg\\:w-1\\/2:last-child');
+        
+        if (machineLeft) {
+            gsap.from(machineLeft, {
+                scrollTrigger: { trigger: '#interactive-machine-section', start: "top 70%", toggleActions: "play reverse play reverse" },
+                x: -60, opacity: 0, duration: 1, ease: "power3.out"
+            });
+        }
+        if (machineRight) {
+            gsap.from(machineRight, {
+                scrollTrigger: { trigger: '#interactive-machine-section', start: "top 70%", toggleActions: "play reverse play reverse" },
+                x: 60, opacity: 0, duration: 1, ease: "power3.out"
+            });
+        }
+
+        // 2.5 Promo Banner Section
+        const promoSection = document.getElementById('promo-banner-section');
+        if (promoSection) {
+            const flexContainer = promoSection.querySelector('.max-w-\\[1200px\\]');
+            if (flexContainer && flexContainer.children.length >= 2) {
+                const promoLeft = flexContainer.children[0];
+                const promoRight = flexContainer.children[1];
+                const promoBadge = promoLeft.querySelector('.w-24.h-24');
+
+                // Animate left image container
+                gsap.from(promoLeft, {
+                    scrollTrigger: { trigger: promoSection, start: "top 80%", toggleActions: "play reverse play reverse" },
+                    x: -80, opacity: 0, duration: 1, ease: "power3.out"
+                });
+
+                // Pop and spin the 50% off badge
+                if (promoBadge) {
+                    gsap.from(promoBadge, {
+                        scrollTrigger: { trigger: promoSection, start: "top 75%", toggleActions: "play reverse play reverse" },
+                        scale: 0, rotation: -180, opacity: 0, duration: 0.8, delay: 0.4, ease: "back.out(1.5)"
+                    });
+                }
+
+                // Stagger animate the right content (text, button, contacts)
+                if (promoRight) {
+                    gsap.from(promoRight.children, {
+                        scrollTrigger: { trigger: promoSection, start: "top 80%", toggleActions: "play reverse play reverse" },
+                        x: 60, opacity: 0, duration: 0.8, stagger: 0.1, delay: 0.2, ease: "power3.out"
+                    });
+                }
+            }
+        }
+
+        // 3. Contact Us Section
+        const contactFormContainer = document.querySelector('#contact-section .lg\\:w-3\\/5');
+        const contactImageContainer = document.querySelector('#contact-section .lg\\:w-2\\/5');
+        
+        if (contactFormContainer) {
+            // Animate title and subtitle down
+            gsap.from(contactFormContainer.querySelectorAll('h2, p'), {
+                scrollTrigger: { trigger: contactFormContainer, start: "top 80%", toggleActions: "play reverse play reverse" },
+                y: -30, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power3.out"
+            });
+            // Animate form up
+            gsap.from(contactFormContainer.querySelector('form'), {
+                scrollTrigger: { trigger: contactFormContainer, start: "top 80%", toggleActions: "play reverse play reverse" },
+                y: 50, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out"
+            });
+        }
+        
+        if (contactImageContainer) {
+            gsap.from(contactImageContainer, {
+                scrollTrigger: { trigger: contactImageContainer, start: "top 80%", toggleActions: "play reverse play reverse" },
+                x: 60, opacity: 0, duration: 1, ease: "power3.out"
+            });
+        }
+
+        // 4. Footer Animation
+        const footerCols = document.querySelectorAll('footer .grid > div');
+        if (footerCols.length > 0) {
+            gsap.from(footerCols, {
+                scrollTrigger: { trigger: 'footer', start: "top 85%", toggleActions: "play reverse play reverse" },
+                y: 40, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power3.out"
+            });
+        }
+        
+        const footerBigText = document.querySelector('footer h1');
+        if (footerBigText) {
+            gsap.from(footerBigText, {
+                scrollTrigger: { trigger: footerBigText, start: "top 95%", toggleActions: "play reverse play reverse" },
+                y: 50, opacity: 0, scale: 0.95, duration: 1, ease: "power3.out"
+            });
         }
     }
 
@@ -342,31 +768,37 @@ document.addEventListener("DOMContentLoaded", () => {
             {
                 title: "Signature Espresso",
                 desc: "Bold, Smooth And Unforgettable. The foundation of our coffee.",
+                price: "$3.50", intensity: "Strong", roast: "Dark",
                 img: "./assets/coffee_machine/cup_1.png"
             },
             {
                 title: "Caramel Macchiato",
                 desc: "Sweet, creamy, and topped with rich caramel drizzle.",
+                price: "$4.80", intensity: "Medium", roast: "Medium",
                 img: "./assets/coffee_machine/cup_2.png"
             },
             {
                 title: "Vanilla Latte",
                 desc: "A comforting blend of vanilla and smooth espresso.",
+                price: "$4.50", intensity: "Mild", roast: "Light",
                 img: "./assets/coffee_machine/cup_3.png"
             },
             {
                 title: "Mocha Frappuccino",
                 desc: "Chilled chocolatey perfection for warm summer days.",
+                price: "$5.20", intensity: "Medium", roast: "Dark",
                 img: "./assets/coffee_machine/cup_4.png"
             },
             {
                 title: "Classic Americano",
                 desc: "Simple, strong, and straightforward roasted flavor.",
+                price: "$3.00", intensity: "Strong", roast: "Dark",
                 img: "./assets/coffee_machine/cup_5.png"
             },
             {
                 title: "Creamy Cappuccino",
                 desc: "Perfectly frothed milk over a rich espresso base.",
+                price: "$4.20", intensity: "Medium", roast: "Medium",
                 img: "./assets/coffee_machine/cup_6.png"
             }
         ];
@@ -376,6 +808,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayImg = document.getElementById('display-cup-img');
         const displayTitle = document.getElementById('display-title');
         const displayDesc = document.getElementById('display-desc');
+        const displayPrice = document.getElementById('display-price');
+        const displayIntensity = document.getElementById('display-intensity');
+        const displayRoast = document.getElementById('display-roast');
+        const machineVideo = document.getElementById('coffee-machine-video');
         
         let activeIndex = -1;
         let rotationAngle = 0;
@@ -407,10 +843,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Add Click Event
             cupWrapper.addEventListener('click', () => {
-                // Reset interval timer when user clicks
-                clearInterval(autoCycleInterval);
                 setActiveCup(index);
-                startAutoCycle();
             });
         });
 
@@ -458,56 +891,80 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        let fallbackTimeout;
+        let changeTimeout;
+
+        function triggerNextCup() {
+            const nextIndex = (activeIndex + 1) % totalCups;
+            setActiveCup(nextIndex);
+        }
+
+        if (machineVideo) {
+            machineVideo.addEventListener('ended', triggerNextCup);
+        }
+
         function setActiveCup(index) {
             if (activeIndex === index) return;
             activeIndex = index;
             const coffee = coffeeData[index];
 
+            clearTimeout(fallbackTimeout);
+            clearTimeout(changeTimeout);
+
             // Animate Tray (fade out old, fade in new with scale)
             trayImg.style.opacity = '0';
             trayImg.style.transform = 'scale(0.5)';
             
-            // Animate Display Side
+            // Animate Display Side Out
             displayTitle.style.opacity = '0';
             displayTitle.style.transform = 'translateY(15px)';
             displayDesc.style.opacity = '0';
             displayDesc.style.transform = 'translateY(15px)';
             displayImg.style.opacity = '0';
             displayImg.style.transform = 'scale(0.95)';
+            if(displayPrice) { displayPrice.style.opacity = '0'; displayPrice.style.transform = 'translateY(15px)'; }
+            if(displayIntensity) { displayIntensity.style.opacity = '0'; displayIntensity.style.transform = 'translateY(15px)'; }
+            if(displayRoast) { displayRoast.style.opacity = '0'; displayRoast.style.transform = 'translateY(15px)'; }
 
-            setTimeout(() => {
+            changeTimeout = setTimeout(() => {
                 trayImg.src = coffee.img;
                 displayImg.src = coffee.img;
                 displayTitle.textContent = coffee.title;
                 displayDesc.textContent = coffee.desc;
+                if(displayPrice) displayPrice.textContent = coffee.price;
+                if(displayIntensity) displayIntensity.textContent = coffee.intensity;
+                if(displayRoast) displayRoast.textContent = coffee.roast;
                 
                 // Show Tray
                 trayImg.style.opacity = '1';
                 trayImg.style.transform = 'scale(1)';
 
-                // Show Display
+                // Show Display In
                 displayTitle.style.opacity = '1';
                 displayTitle.style.transform = 'translateY(0)';
                 displayDesc.style.opacity = '1';
                 displayDesc.style.transform = 'translateY(0)';
                 displayImg.style.opacity = '1';
                 displayImg.style.transform = 'scale(1)';
+                if(displayPrice) { displayPrice.style.opacity = '1'; displayPrice.style.transform = 'translateY(0)'; }
+                if(displayIntensity) { displayIntensity.style.opacity = '1'; displayIntensity.style.transform = 'translateY(0)'; }
+                if(displayRoast) { displayRoast.style.opacity = '1'; displayRoast.style.transform = 'translateY(0)'; }
+                
+                // Play Video
+                if (machineVideo) {
+                    machineVideo.currentTime = 0;
+                    machineVideo.play().catch(e => {
+                        console.log('Video autoplay blocked:', e);
+                        fallbackTimeout = setTimeout(triggerNextCup, 4000);
+                    });
+                } else {
+                    fallbackTimeout = setTimeout(triggerNextCup, 4000);
+                }
             }, 400); // Wait for fade out
         }
 
-        // Set initial active cup
+        // Set initial active cup (this will kick off the cycle)
         setActiveCup(0);
-
-        // Auto Cycle
-        let autoCycleInterval;
-        function startAutoCycle() {
-            autoCycleInterval = setInterval(() => {
-                const nextIndex = (activeIndex + 1) % totalCups;
-                setActiveCup(nextIndex);
-            }, 4000); // Change every 4 seconds
-        }
-        
-        startAutoCycle();
     }
 
     // Go To Top Button Logic
