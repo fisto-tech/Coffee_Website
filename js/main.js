@@ -403,6 +403,127 @@ document.addEventListener("DOMContentLoaded", () => {
             stagger: 0.05
         });
 
+        // Statement Section: scroll-driven full-screen zoom per pill image.
+        // Uses CSS sticky + a tall wrapper div so the section stays on-screen for
+        // all 3 images without conflicting with adjacent GSAP-pinned sections.
+        const statementSection = document.getElementById('statement-section');
+        const statementWrapper = document.getElementById('statement-scroll-wrapper');
+        const zoomOverlay      = document.getElementById('statement-zoom-overlay');
+        const zoomImg          = document.getElementById('statement-zoom-img');
+        const pillWrappersList = Array.from(document.querySelectorAll('.anim-pill'));
+
+        if (statementSection && statementWrapper && zoomOverlay && zoomImg && pillWrappersList.length > 0) {
+
+            const pillSrcs = pillWrappersList.map(pill => {
+                const img = pill.querySelector('img');
+                return img ? img.src : '';
+            });
+
+            const scrollPerImage = 1000;               // px of scroll per image cycle
+            const totalScroll    = pillSrcs.length * scrollPerImage; // 3000 for 3 images
+
+            // ── Make the section sticky so it stays at the top while the
+            //    wrapper provides the extra 3000px of scroll space ────────────
+            statementSection.style.position = 'sticky';
+            statementSection.style.top      = '0';
+            statementSection.style.zIndex   = '1';
+
+            const applyWrapperHeight = () => {
+                statementWrapper.style.height =
+                    (statementSection.offsetHeight + totalScroll) + 'px';
+            };
+            applyWrapperHeight();
+            window.addEventListener('resize', applyWrapperHeight);
+
+            // ── Pill rects (read while section is at top of viewport) ────────
+            let pillRects  = [];
+            let lastPillIdx = -1;
+
+            const eio = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+            const readPillRects = () => {
+                pillRects = pillWrappersList.map(pill => {
+                    const r  = pill.getBoundingClientRect();
+                    const ww = window.innerWidth, wh = window.innerHeight;
+                    return {
+                        topPct:    (r.top            / wh) * 100,
+                        leftPct:   (r.left           / ww) * 100,
+                        bottomPct: ((wh - r.bottom)  / wh) * 100,
+                        rightPct:  ((ww - r.right)   / ww) * 100,
+                    };
+                });
+            };
+
+            // ── ScrollTrigger on the WRAPPER – no pin needed ─────────────────
+            ScrollTrigger.create({
+                trigger: statementWrapper,
+                start:   'top top',
+                end:     '+=' + totalScroll,
+                scrub:   1.5,
+                invalidateOnRefresh: true,
+
+                onRefresh() { applyWrapperHeight(); readPillRects(); },
+                onEnter()   { readPillRects(); },
+
+                onUpdate(self) {
+                    if (!pillRects.length) readPillRects();
+
+                    const progress = self.progress;
+                    // Keep last pill in its close phase when progress = 1
+                    const rawIdx  = Math.min(progress * pillSrcs.length, pillSrcs.length - 0.001);
+                    const pillIdx = Math.floor(rawIdx);
+                    const p       = rawIdx - pillIdx; // 0‥1 within this pill's segment
+
+                    // Swap image source when crossing into a new pill
+                    if (pillIdx !== lastPillIdx) {
+                        lastPillIdx   = pillIdx;
+                        zoomImg.src   = pillSrcs[pillIdx];
+                    }
+
+                    const r = pillRects[pillIdx];
+                    if (!r) return;
+
+                    let opacity, top, left, bottom, right, scale, bRadius;
+
+                    if (p < 0.30) {
+                        // ── OPEN: clip grows from pill → full screen
+                        const t = eio(p / 0.30);
+                        opacity = t;
+                        top     = r.topPct    * (1 - t);
+                        left    = r.leftPct   * (1 - t);
+                        bottom  = r.bottomPct * (1 - t);
+                        right   = r.rightPct  * (1 - t);
+                        scale   = 1.25 - 0.25 * t;
+                        bRadius = 12 * (1 - t);
+
+                    } else if (p < 0.70) {
+                        // ── HOLD: full screen + gentle Ken Burns
+                        const holdT = (p - 0.30) / 0.40;
+                        opacity = 1;
+                        top = left = bottom = right = 0;
+                        scale   = 1.0 + 0.04 * holdT;
+                        bRadius = 0;
+
+                    } else {
+                        // ── CLOSE: full screen shrinks back to pill
+                        const t = eio((p - 0.70) / 0.30);
+                        opacity = 1 - t;
+                        top     = r.topPct    * t;
+                        left    = r.leftPct   * t;
+                        bottom  = r.bottomPct * t;
+                        right   = r.rightPct  * t;
+                        scale   = 1.04 + 0.21 * t;
+                        bRadius = 12 * t;
+                    }
+
+                    zoomOverlay.style.opacity       = opacity;
+                    zoomOverlay.style.clipPath       = `inset(${top}% ${right}% ${bottom}% ${left}% round ${bRadius}px)`;
+                    zoomImg.style.transform          = `scale(${scale})`;
+                    zoomOverlay.style.pointerEvents  = opacity > 0.05 ? 'auto' : 'none';
+                }
+            });
+        }
+
         // Pill Curtain Animations (Triggered, not scrubbed)
         const pills = document.querySelectorAll(".anim-pill");
         pills.forEach((wrapper) => {
@@ -423,14 +544,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             ScrollTrigger.create({
                 trigger: line,
-                start: "top 95%", // Play when line appears at the bottom
-                end: "bottom 5%", // Reverse when line disappears at the top
-                onEnter: () => tl.play(),
-                onLeave: () => tl.reverse(),
+                start: "top 95%",
+                // onLeave intentionally removed — with the 3000px sticky wrapper,
+                // GSAP thinks the line scrolls past "bottom 5%" and would close
+                // the pill, hiding the images between zoom cycles.
+                onEnter:     () => tl.play(),
                 onEnterBack: () => tl.play(),
-                onLeaveBack: () => tl.reverse()
+                onLeaveBack: () => tl.reverse()  // still close if scrolling back up
             });
         });
+
         // Bestsellers Coverflow Gallery Animation
         const gallerySection = document.getElementById('bestsellers-section');
         if (gallerySection) {
@@ -539,14 +662,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- Generic Section Text Reveal Animations --- //
         
-        // 1. Statement Section
+        // 1. Statement Section lines — "play none none none" so they stay
+        //    visible throughout the sticky 3-image zoom sequence.
+        //    (Using "reverse" caused text to hide after image 1 because GSAP's
+        //    scroll position advanced 3000px past the trigger end.)
         const statementLines = document.querySelectorAll('.statement-line');
         statementLines.forEach((line, index) => {
             gsap.from(line, {
                 scrollTrigger: {
                     trigger: line,
                     start: "top 85%",
-                    toggleActions: "play reverse play reverse"
+                    toggleActions: "play none none none"
                 },
                 x: index % 2 === 0 ? -50 : 50,
                 opacity: 0,
