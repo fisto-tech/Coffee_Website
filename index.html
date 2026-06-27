@@ -80,7 +80,6 @@
                 <li><a href="#hero-section" class="hover:text-primary transition-colors cursor-pointer whitespace-nowrap block">Home</a></li>
                 <li><a href="#bestsellers-slider" class="hover:text-primary transition-colors cursor-pointer whitespace-nowrap block">Product</a></li>
                 <li><a href="#bestsellers-section" class="hover:text-primary transition-colors cursor-pointer whitespace-nowrap block">Gallery</a></li>
-                <li><a href="#interactive-machine-section" class="hover:text-primary transition-colors cursor-pointer whitespace-nowrap block">Make a Coffee</a></li>
                 <li><a href="#contact-section" class="hover:text-primary transition-colors cursor-pointer whitespace-nowrap block">Contact Us</a></li>
             </ul>
 
@@ -162,22 +161,24 @@
 
     </main>
 
-    <!-- Statement Section -->
-    <!-- Full-screen zoom overlay for statement images -->
-    <div id="statement-zoom-overlay" style="position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0;background:#000;">
-        <img id="statement-zoom-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);">
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.18);"></div>
-    </div>
-    <!-- Statement Section Scroll Wrapper: height set by JS to create sticky scroll space -->
-    <div id="statement-scroll-wrapper" style="position:relative;">
-    <section id="statement-section" class="w-full bg-[#FDFBF7] text-[#33251A] py-20 px-6 overflow-hidden">
-        <div class="max-w-[1200px] mx-auto text-center">
+    <!-- Statement Section (Pinned by GSAP) -->
+    <section id="statement-section" class="w-full bg-[#FDFBF7] text-[#33251A] overflow-hidden flex items-center justify-center relative" style="height:100vh;max-height:100vh;">
+        <!-- Zoom overlay: positioned absolute inside the section so it's contained here -->
+        <div id="statement-zoom-overlay" style="position:absolute;inset:0;z-index:40;pointer-events:none;opacity:0;background:#000;">
+            <img id="statement-zoom-img" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.15);">
+            <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);"></div>
+            <div id="statement-zoom-text" class="absolute inset-0 flex flex-col items-center justify-center text-center text-[#FDFBF7] px-6 pointer-events-none" style="z-index: 10; opacity: 0;">
+                <h3 id="statement-zoom-title" class="text-4xl md:text-6xl font-serif font-bold mb-4 drop-shadow-lg tracking-wide"></h3>
+                <p id="statement-zoom-desc" class="text-lg md:text-xl font-medium max-w-2xl drop-shadow-md text-[#FDFBF7]/90"></p>
+            </div>
+        </div>
+        <div class="max-w-[1200px] w-full mx-auto text-center px-6">
             <h2 class="statement-text text-3xl sm:text-4xl md:text-5xl lg:text-[5.5rem] font-bold uppercase tracking-tight font-sans text-[#D4C5B9] leading-tight md:leading-snug lg:leading-[1.4]">
                 <div class="statement-line whitespace-normal lg:whitespace-nowrap flex flex-wrap justify-center gap-x-2 lg:gap-x-4 gap-y-2 lg:block">
                     <span class="color-word transition-colors duration-200">COFFEE</span> <span class="color-word transition-colors duration-200">IS</span>
                     <span class="anim-word relative inline-block">
                         <span class="anim-pill inline-block h-[0.7em] w-0 align-baseline mx-1 md:mx-2 overflow-hidden relative rounded-xl">
-                            <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Coffee beans" class="absolute top-0 left-1/2 -translate-x-1/2 h-full min-w-[3.5em] max-w-none object-cover">
+                            <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Coffee beans" class="absolute top-0 left-1/2 -translate-x-1/2 h-full min-w-[3.5em] max-w-none object-cover">
                             <div class="anim-reveal left absolute top-0 left-0 w-1/2 h-full bg-[#33251A] z-10"></div>
                             <div class="anim-reveal right absolute top-0 right-0 w-1/2 h-full bg-[#33251A] z-10"></div>
                         </span>
@@ -188,7 +189,7 @@
                     <span class="color-word transition-colors duration-200">THAN</span> <span class="color-word transition-colors duration-200">A</span> <span class="transition-colors duration-200" style="color:#d4a173;">DRINK.</span> <span class="color-word transition-colors duration-200">WE</span> 
                     <span class="anim-word relative inline-block">
                         <span class="anim-pill inline-block h-[0.7em] w-0 align-baseline mx-1 md:mx-2 overflow-hidden relative rounded-xl">
-                            <img src="https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Coffee pouring" class="absolute top-0 left-1/2 -translate-x-1/2 h-full min-w-[3.5em] max-w-none object-cover">
+                            <img src="https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Coffee pouring" class="absolute top-0 left-1/2 -translate-x-1/2 h-full min-w-[3.5em] max-w-none object-cover">
                             <div class="anim-reveal left absolute top-0 left-0 w-1/2 h-full bg-[#33251A] z-10"></div>
                             <div class="anim-reveal right absolute top-0 right-0 w-1/2 h-full bg-[#33251A] z-10"></div>
                         </span>
@@ -200,7 +201,7 @@
                 <div class="statement-line whitespace-normal lg:whitespace-nowrap flex flex-wrap justify-center gap-x-2 lg:gap-x-4 gap-y-2 mt-4 md:mt-6 lg:block">
                     <span class="anim-word relative inline-block">
                         <span class="anim-pill inline-block h-[0.7em] w-0 align-baseline mx-1 md:mx-2 overflow-hidden relative rounded-xl">
-                            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Coffee cup" class="absolute top-0 left-1/2 -translate-x-1/2 h-full min-w-[3.5em] max-w-none object-cover">
+                            <img src="https://images.unsplash.com/photo-1610889556528-9a770e32642f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Coffee cup" class="absolute top-0 left-1/2 -translate-x-1/2 h-full min-w-[3.5em] max-w-none object-cover">
                             <div class="anim-reveal left absolute top-0 left-0 w-1/2 h-full bg-[#33251A] z-10"></div>
                             <div class="anim-reveal right absolute top-0 right-0 w-1/2 h-full bg-[#33251A] z-10"></div>
                         </span>
@@ -210,13 +211,12 @@
             </h2>
         </div>
     </section>
-    </div><!-- /statement-scroll-wrapper -->
 
     <!-- 5-Card Bestsellers Slider -->
     <section id="bestsellers-slider" class="relative w-full h-[100vh] overflow-hidden bg-[#170E0A]">
         <!-- Main Background Images -->
         <div id="slider-bg-container" class="absolute inset-0 w-full h-full z-0 overflow-hidden">
-            <div class="slider-bg absolute inset-0 w-full h-full bg-cover bg-center z-[1]" style="background-image: url('https://images.unsplash.com/photo-1585494156145-1c60a4fe952b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); transform: translateX(0%);"></div>
+            <div class="slider-bg absolute inset-0 w-full h-full bg-cover bg-center z-[1]" style="background-image: url('https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); transform: translateX(0%);"></div>
             <div class="slider-bg absolute inset-0 w-full h-full bg-cover bg-center z-[2]" style="background-image: url('https://images.unsplash.com/photo-1572442388796-11668a67e53d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); transform: translateX(100%);"></div>
             <div class="slider-bg absolute inset-0 w-full h-full bg-cover bg-center z-[3]" style="background-image: url('https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); transform: translateX(100%);"></div>
             <div class="slider-bg absolute inset-0 w-full h-full bg-cover bg-center z-[4]" style="background-image: url('https://images.unsplash.com/photo-1461023058943-07fcbe16d735?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); transform: translateX(100%);"></div>
@@ -228,22 +228,22 @@
         <div class="absolute inset-0 bg-gradient-to-t from-[#0A0705] via-transparent to-transparent z-10 h-full"></div>
 
         <!-- Left Content -->
-        <div class="absolute top-[20%] md:top-1/4 left-6 md:left-12 lg:left-24 z-20 max-w-lg pointer-events-none">
-            <h2 id="slider-title" class="text-5xl md:text-7xl lg:text-[6rem] font-sans font-bold text-[#FDFBF7] leading-[1.05] tracking-tight mb-4 transition-all duration-300">
+        <div class="absolute top-[12%] sm:top-[15%] md:top-1/4 left-6 md:left-12 lg:left-24 z-20 max-w-sm md:max-w-lg pointer-events-none">
+            <h2 id="slider-title" class="text-4xl sm:text-5xl md:text-7xl lg:text-[6rem] font-sans font-bold text-[#FDFBF7] leading-[1.05] tracking-tight mb-3 sm:mb-4 transition-all duration-300">
                 Caramel<br>Latte
             </h2>
-            <p id="slider-desc" class="text-[#FDFBF7]/80 text-base md:text-lg mb-6 transition-all duration-300 max-w-md">
+            <p id="slider-desc" class="text-[#FDFBF7]/80 text-sm sm:text-base md:text-lg mb-4 sm:mb-6 transition-all duration-300 max-w-xs sm:max-w-md line-clamp-3 sm:line-clamp-none">
                 Experience the perfect blend of rich espresso and velvety caramel, topped with a delicate foam.
             </p>
-            <div class="flex items-center gap-6 mb-8">
-                <span id="slider-price" class="text-3xl font-bold text-[#D5A071] transition-all duration-300">$4.50</span>
+            <div class="flex items-center gap-4 sm:gap-6 mb-4 sm:mb-8">
+                <span id="slider-price" class="text-2xl sm:text-3xl font-bold text-[#D5A071] transition-all duration-300">$4.50</span>
             </div>
-            <div class="flex items-center gap-4">
-                <button class="bg-[#D5A071] text-[#1A110C] font-bold px-8 py-3.5 rounded-xl hover:bg-[#FDFBF7] transition-all duration-300 transform hover:scale-105 shadow-[0_10px_20px_rgba(213,160,113,0.3)] pointer-events-auto">
+            <div class="flex items-center gap-3 sm:gap-4">
+                <button class="bg-[#D5A071] text-[#1A110C] font-bold px-6 sm:px-8 py-2.5 sm:py-3.5 rounded-xl text-sm sm:text-base hover:bg-[#FDFBF7] transition-all duration-300 transform hover:scale-105 shadow-[0_10px_20px_rgba(213,160,113,0.3)] pointer-events-auto">
                     Order Now
                 </button>
-                <button class="w-12 h-12 rounded-xl border-2 border-[#D5A071]/30 flex items-center justify-center text-[#D5A071] hover:bg-[#D5A071] hover:text-[#1A110C] transition-all duration-300 pointer-events-auto cursor-pointer group">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <button class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border-2 border-[#D5A071]/30 flex items-center justify-center text-[#D5A071] hover:bg-[#D5A071] hover:text-[#1A110C] transition-all duration-300 pointer-events-auto cursor-pointer group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 transform group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                 </button>
@@ -251,17 +251,17 @@
         </div>
 
         <!-- Right Thumbnails Slider -->
-        <div class="absolute bottom-8 lg:bottom-12 right-0 z-30 w-full md:w-2/3 lg:w-[60%] pl-6 md:pl-0 overflow-hidden cursor-grab active:cursor-grabbing" id="slider-drag-area">
-            <div id="slider-cards-container" class="flex gap-4 md:gap-6 flex-nowrap w-max pr-[20vw] pb-4 select-none">
+        <div class="absolute bottom-6 sm:bottom-8 lg:bottom-12 right-0 z-30 w-full md:w-2/3 lg:w-[60%] pl-6 md:pl-0 overflow-hidden cursor-grab active:cursor-grabbing" id="slider-drag-area">
+            <div id="slider-cards-container" class="flex gap-3 sm:gap-4 md:gap-6 flex-nowrap w-max pr-[20vw] pb-4 select-none">
                 
                 <!-- Card 1 -->
-                <div class="slider-card w-[150px] md:w-[200px] h-[220px] md:h-[280px] rounded-[1.5rem] overflow-hidden relative border-2 border-[#D5A071] flex-shrink-0 transition-all duration-300 shadow-2xl">
-                    <button class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
+                <div class="slider-card w-[130px] sm:w-[150px] md:w-[200px] h-[190px] sm:h-[220px] md:h-[280px] rounded-2xl sm:rounded-[1.5rem] overflow-hidden relative border-2 border-[#D5A071] flex-shrink-0 transition-all duration-300 shadow-2xl">
+                    <button class="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                     </button>
-                    <img src="https://images.unsplash.com/photo-1585494156145-1c60a4fe952b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Caramel Latte" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none">
+                    <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Caramel Latte" class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 pointer-events-none"></div>
                     <div class="absolute bottom-4 inset-x-0 text-center z-20 px-2 pointer-events-none">
                         <span class="text-[#FDFBF7] font-semibold text-xs md:text-sm tracking-wide">Caramel Latte</span>
@@ -269,8 +269,8 @@
                 </div>
 
                 <!-- Card 2 -->
-                <div class="slider-card w-[150px] md:w-[200px] h-[220px] md:h-[280px] rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
-                    <button class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
+                <div class="slider-card w-[130px] sm:w-[150px] md:w-[200px] h-[190px] sm:h-[220px] md:h-[280px] rounded-2xl sm:rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
+                    <button class="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
@@ -283,8 +283,8 @@
                 </div>
 
                 <!-- Card 3 -->
-                <div class="slider-card w-[150px] md:w-[200px] h-[220px] md:h-[280px] rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
-                    <button class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
+                <div class="slider-card w-[130px] sm:w-[150px] md:w-[200px] h-[190px] sm:h-[220px] md:h-[280px] rounded-2xl sm:rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
+                    <button class="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
@@ -297,8 +297,8 @@
                 </div>
 
                 <!-- Card 4 -->
-                <div class="slider-card w-[150px] md:w-[200px] h-[220px] md:h-[280px] rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
-                    <button class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
+                <div class="slider-card w-[130px] sm:w-[150px] md:w-[200px] h-[190px] sm:h-[220px] md:h-[280px] rounded-2xl sm:rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
+                    <button class="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
@@ -311,8 +311,8 @@
                 </div>
 
                 <!-- Card 5 -->
-                <div class="slider-card w-[150px] md:w-[200px] h-[220px] md:h-[280px] rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
-                    <button class="absolute top-3 right-3 z-30 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
+                <div class="slider-card w-[130px] sm:w-[150px] md:w-[200px] h-[190px] sm:h-[220px] md:h-[280px] rounded-2xl sm:rounded-[1.5rem] overflow-hidden relative border-2 border-transparent opacity-50 flex-shrink-0 transition-all duration-300 shadow-lg hover:opacity-80">
+                    <button class="absolute top-2 right-2 sm:top-3 sm:right-3 z-30 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-[#FDFBF7] hover:text-[#D5A071] transition-colors pointer-events-auto shadow-md fav-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
@@ -402,7 +402,7 @@
 
 
     <!-- Interactive Machine Section -->
-    <section id="interactive-machine-section" class="w-full relative py-6 px-6 min-h-screen flex items-center justify-center overflow-hidden" style="background: linear-gradient(135deg, #E6D0BA 0%, #D2B79A 100%);">
+    <section id="interactive-machine-section" class="w-full relative py-6 px-6 min-h-screen flex items-center justify-center overflow-hidden bg-[#FDFBF7]">
         <!-- Floating decorative beans/smoke can be added here if needed -->
         
         <div class="max-w-[1400px] mx-auto w-full flex flex-col lg:flex-row items-center justify-between relative z-10 gap-10">
@@ -411,50 +411,50 @@
             <div class="relative w-full lg:w-1/2 flex items-center justify-center h-[400px] sm:h-[500px] md:h-[600px] lg:h-[800px]">
                 
                 <!-- Coffee Machine -->
-                <div class="relative z-20 w-[240px] sm:w-[320px] md:w-[450px] lg:w-[650px] h-[340px] sm:h-[450px] md:h-[600px] lg:h-[750px] flex flex-col items-center justify-center pointer-events-none">
+                <div class="relative z-20 w-[240px] sm:w-[320px] md:w-[450px] lg:w-[650px] h-[340px] sm:h-[450px] md:h-[600px] lg:h-[750px] flex flex-col items-center justify-center pointer-events-none transform scale-105 sm:scale-110 md:scale-[1.15] lg:scale-[1.20] origin-center -translate-y-4">
                     <video id="coffee-machine-video" src="./assets/Coffee_machine_pouring.webm" muted playsinline class="w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] scale-[1.15]"></video>
                     <!-- Machine Tray position for active cup -->
-                    <div id="machine-tray" class="absolute bottom-[21%] md:bottom-[26%] left-1/2 -translate-x-1/2 w-20 h-20 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-[11rem] lg:h-[11rem] z-30 flex items-center justify-center pointer-events-none transform -translate-x-[49%]">
+                    <div id="machine-tray" class="absolute bottom-[24%] md:bottom-[32%] lg:bottom-[32%] left-1/2 -translate-x-1/2 w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 z-30 flex items-center justify-center pointer-events-none transform -translate-x-[48%]">
                         <img id="tray-cup-img" src="" class="w-full h-full object-contain drop-shadow-xl opacity-0 transform scale-50 transition-all duration-700 ease-out">
                     </div>
                 </div>
 
-                <!-- Orbiting Cups Container -->
-                <div id="orbit-container" class="absolute inset-0 w-full h-full flex items-center justify-center z-10">
+                <!-- Cups Container (Bottom of machine) -->
+                <div id="orbit-container" class="absolute bottom-0 w-full flex items-center justify-center gap-2 sm:gap-4 lg:gap-6 z-40 pb-4">
                     <!-- Cups will be injected via JS -->
                 </div>
             </div>
 
             <!-- Right Side: Displayed Cup & Text -->
-            <div class="w-full lg:w-1/2 flex flex-col items-center lg:items-start text-center lg:text-left pt-6 sm:pt-10 lg:pt-0 lg:pl-16">
-                <div class="relative w-[200px] h-[200px] sm:w-[260px] sm:h-[260px] md:w-[350px] md:h-[350px] lg:w-[450px] lg:h-[450px] -mb-4 sm:-mb-8 md:-mb-12 lg:-mb-16 group" id="active-display-container">
+            <div class="w-full lg:w-1/2 flex flex-col items-center text-center pt-6 sm:pt-10 lg:pt-0">
+                <div class="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] md:w-[160px] md:h-[160px] lg:w-[200px] lg:h-[200px] mb-2 sm:mb-4 group mx-auto" id="active-display-container">
                     <div class="absolute inset-0 bg-[#8B5A33]/10 rounded-full blur-3xl group-hover:bg-[#8B5A33]/20 transition-colors duration-500 transform scale-110"></div>
                     <img id="display-cup-img" src="" alt="Active Cup" class="relative z-10 w-full h-full object-contain drop-shadow-[0_20px_40px_rgba(51,37,26,0.5)] transition-all duration-700 transform hover:scale-[1.03] cursor-pointer object-center">
                 </div>
                 
-                <h2 id="display-title" class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-anton text-[#33251A] uppercase tracking-wide mb-3 sm:mb-4 transition-all duration-500 transform translate-y-0 opacity-100">
+                <h2 id="display-title" class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-anton text-[#33251A] uppercase tracking-wide mb-3 sm:mb-4 transition-all duration-500 transform translate-y-0 opacity-100">
                     Signature Espresso
                 </h2>
-                <div class="w-20 h-1 bg-[#D5A071] mb-5 lg:mx-0 mx-auto rounded-full"></div>
-                <p id="display-desc" class="text-sm sm:text-base md:text-lg lg:text-xl text-[#5A4534] font-medium leading-relaxed max-w-xs sm:max-w-md lg:max-w-xl transition-all duration-500 delay-100 transform translate-y-0 opacity-100 mb-6 sm:mb-8">
+                <div class="w-16 h-1 bg-[#D5A071] mb-5 mx-auto rounded-full"></div>
+                <p id="display-desc" class="text-xs sm:text-sm md:text-base lg:text-lg text-[#5A4534] font-medium leading-relaxed max-w-xs sm:max-w-md lg:max-w-lg transition-all duration-500 delay-100 transform translate-y-0 opacity-100 mb-6 sm:mb-8">
                     Bold, Smooth And Unforgettable.
                 </p>
 
                 <!-- New Price & Specs UI -->
-                <div class="flex justify-center lg:justify-start items-center mb-8 sm:mb-10 w-full divide-x divide-[#33251A]/10">
-                    <div class="flex flex-col items-center lg:items-start px-4 sm:px-6 lg:pl-0 lg:pr-8">
-                        <span class="text-xs sm:text-sm uppercase tracking-widest text-[#5A4534]/70 mb-1 font-bold">Price</span>
-                        <span id="display-price" class="text-3xl sm:text-4xl font-bold text-[#D5A071] transition-all duration-500 transform translate-y-0 opacity-100">$3.50</span>
+                <div class="flex justify-center items-center mb-8 sm:mb-10 w-full divide-x divide-[#33251A]/10">
+                    <div class="flex flex-col items-center px-4 sm:px-6">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-[#5A4534]/70 mb-1 font-bold">Price</span>
+                        <span id="display-price" class="text-2xl sm:text-3xl font-bold text-[#D5A071] transition-all duration-500 transform translate-y-0 opacity-100">$3.50</span>
                     </div>
                     
-                    <div class="flex flex-col items-center lg:items-start px-4 sm:px-6 lg:px-8">
-                        <span class="text-xs sm:text-sm uppercase tracking-widest text-[#5A4534]/70 mb-1 font-bold">Intensity</span>
-                        <span id="display-intensity" class="text-lg sm:text-xl font-bold text-[#33251A] transition-all duration-500 transform translate-y-0 opacity-100">Strong</span>
+                    <div class="flex flex-col items-center px-4 sm:px-6">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-[#5A4534]/70 mb-1 font-bold">Intensity</span>
+                        <span id="display-intensity" class="text-base sm:text-lg font-bold text-[#33251A] transition-all duration-500 transform translate-y-0 opacity-100">Strong</span>
                     </div>
 
-                    <div class="flex flex-col items-center lg:items-start px-4 sm:px-6 lg:px-8">
-                        <span class="text-xs sm:text-sm uppercase tracking-widest text-[#5A4534]/70 mb-1 font-bold">Roast</span>
-                        <span id="display-roast" class="text-lg sm:text-xl font-bold text-[#33251A] transition-all duration-500 transform translate-y-0 opacity-100">Dark</span>
+                    <div class="flex flex-col items-center px-4 sm:px-6">
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-[#5A4534]/70 mb-1 font-bold">Roast</span>
+                        <span id="display-roast" class="text-base sm:text-lg font-bold text-[#33251A] transition-all duration-500 transform translate-y-0 opacity-100">Dark</span>
                     </div>
                 </div>
 

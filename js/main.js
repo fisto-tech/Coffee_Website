@@ -407,12 +407,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // Uses CSS sticky + a tall wrapper div so the section stays on-screen for
         // all 3 images without conflicting with adjacent GSAP-pinned sections.
         const statementSection = document.getElementById('statement-section');
-        const statementWrapper = document.getElementById('statement-scroll-wrapper');
         const zoomOverlay      = document.getElementById('statement-zoom-overlay');
         const zoomImg          = document.getElementById('statement-zoom-img');
+        const zoomTextContainer = document.getElementById('statement-zoom-text');
+        const zoomTitle         = document.getElementById('statement-zoom-title');
+        const zoomDesc          = document.getElementById('statement-zoom-desc');
         const pillWrappersList = Array.from(document.querySelectorAll('.anim-pill'));
+        
+        const zoomTextData = [
+            { title: "PURE ORIGIN", desc: "Handpicked beans from the world's finest high-altitude coffee farms." },
+            { title: "ARTISAN CRAFT", desc: "Poured with passion, every cup is a masterpiece of flavor and balance." },
+            { title: "BOLD ROAST", desc: "Expertly roasted to unlock intense, unforgettable notes in every sip." }
+        ];
 
-        if (statementSection && statementWrapper && zoomOverlay && zoomImg && pillWrappersList.length > 0) {
+        if (statementSection && zoomOverlay && zoomImg && pillWrappersList.length > 0) {
 
             const pillSrcs = pillWrappersList.map(pill => {
                 const img = pill.querySelector('img');
@@ -422,18 +430,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const scrollPerImage = 1000;               // px of scroll per image cycle
             const totalScroll    = pillSrcs.length * scrollPerImage; // 3000 for 3 images
 
-            // ── Make the section sticky so it stays at the top while the
-            //    wrapper provides the extra 3000px of scroll space ────────────
-            statementSection.style.position = 'sticky';
-            statementSection.style.top      = '0';
+            // ── We will use GSAP's native pin instead of CSS sticky ────────────
             statementSection.style.zIndex   = '1';
-
-            const applyWrapperHeight = () => {
-                statementWrapper.style.height =
-                    (statementSection.offsetHeight + totalScroll) + 'px';
-            };
-            applyWrapperHeight();
-            window.addEventListener('resize', applyWrapperHeight);
 
             // ── Pill rects (read while section is at top of viewport) ────────
             let pillRects  = [];
@@ -442,27 +440,28 @@ document.addEventListener("DOMContentLoaded", () => {
             const eio = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
 
             const readPillRects = () => {
+                const sRect = statementSection.getBoundingClientRect();
                 pillRects = pillWrappersList.map(pill => {
-                    const r  = pill.getBoundingClientRect();
-                    const ww = window.innerWidth, wh = window.innerHeight;
+                    const r = pill.getBoundingClientRect();
                     return {
-                        topPct:    (r.top            / wh) * 100,
-                        leftPct:   (r.left           / ww) * 100,
-                        bottomPct: ((wh - r.bottom)  / wh) * 100,
-                        rightPct:  ((ww - r.right)   / ww) * 100,
+                        topPct:    ((r.top - sRect.top)       / sRect.height) * 100,
+                        leftPct:   ((r.left - sRect.left)     / sRect.width)  * 100,
+                        bottomPct: ((sRect.bottom - r.bottom) / sRect.height) * 100,
+                        rightPct:  ((sRect.right - r.right)   / sRect.width)  * 100,
                     };
                 });
             };
 
-            // ── ScrollTrigger on the WRAPPER – no pin needed ─────────────────
+            // ── ScrollTrigger with GSAP Pinning ─────────────────
             ScrollTrigger.create({
-                trigger: statementWrapper,
+                trigger: statementSection,
                 start:   'top top',
                 end:     '+=' + totalScroll,
-                scrub:   1.5,
+                pin:     true,
+                scrub:   true,
                 invalidateOnRefresh: true,
 
-                onRefresh() { applyWrapperHeight(); readPillRects(); },
+                onRefresh() { readPillRects(); },
                 onEnter()   { readPillRects(); },
 
                 onUpdate(self) {
@@ -478,6 +477,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (pillIdx !== lastPillIdx) {
                         lastPillIdx   = pillIdx;
                         zoomImg.src   = pillSrcs[pillIdx];
+                        if (zoomTitle && zoomDesc && zoomTextData[pillIdx]) {
+                            zoomTitle.innerText = zoomTextData[pillIdx].title;
+                            zoomDesc.innerText = zoomTextData[pillIdx].desc;
+                        }
                     }
 
                     const r = pillRects[pillIdx];
@@ -517,9 +520,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
 
                     zoomOverlay.style.opacity       = opacity;
+                    zoomOverlay.style.webkitClipPath = `inset(${top}% ${right}% ${bottom}% ${left}% round ${bRadius}px)`;
                     zoomOverlay.style.clipPath       = `inset(${top}% ${right}% ${bottom}% ${left}% round ${bRadius}px)`;
                     zoomImg.style.transform          = `scale(${scale})`;
                     zoomOverlay.style.pointerEvents  = opacity > 0.05 ? 'auto' : 'none';
+                    
+                    // Add text animation during hold phase
+                    if (zoomTextContainer && zoomTitle && zoomDesc) {
+                        if (p >= 0.25 && p <= 0.75) {
+                            let textAlpha = 0;
+                            if (p < 0.35) {
+                                textAlpha = (p - 0.25) / 0.10; // fade in
+                            } else if (p > 0.65) {
+                                textAlpha = 1 - ((p - 0.65) / 0.10); // fade out
+                            } else {
+                                textAlpha = 1;
+                            }
+                            const easeAlpha = 1 - Math.pow(1 - textAlpha, 3);
+                            zoomTextContainer.style.opacity = textAlpha;
+                            zoomTitle.style.transform = `translateY(${(1 - easeAlpha) * 30}px)`;
+                            zoomDesc.style.transform = `translateY(${(1 - easeAlpha) * 30}px)`;
+                        } else {
+                            zoomTextContainer.style.opacity = 0;
+                        }
+                    }
                 }
             });
         }
@@ -558,7 +582,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const gallerySection = document.getElementById('bestsellers-section');
         if (gallerySection) {
             // Preload Image Sequence for video effect
-            const frameCount = 349;
+            const frameCount = 375;
             const sequenceImages = [];
             for (let i = 1; i <= frameCount; i++) {
                 const img = new Image();
@@ -771,6 +795,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 y: 50, opacity: 0, scale: 0.95, duration: 1, ease: "power3.out"
             });
         }
+        // --- CRITICAL FIX: Sort and Refresh ---
+        // Because ScrollTriggers were created out of DOM order (bestsellers slider before statement section),
+        // we must tell GSAP to sort them by their DOM position and refresh calculations.
+        // This ensures pin spacers push subsequent sections down correctly.
+        ScrollTrigger.sort();
+        ScrollTrigger.refresh();
     }
 
     // Custom Dropdown Logic
@@ -940,29 +970,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const machineVideo = document.getElementById('coffee-machine-video');
         
         let activeIndex = -1;
-        let rotationAngle = 0;
         const totalCups = coffeeData.length;
-        
-        // Responsive radii
-        const getRadii = () => {
-            const width = window.innerWidth;
-            if (width < 640) { // sm
-                return { x: 110, y: 150 };
-            } else if (width < 1024) { // md and lg (tablet)
-                return { x: 180, y: 240 };
-            } else { // desktop
-                return { x: 250, y: 320 };
-            }
-        };
 
         // Create Cups
         coffeeData.forEach((coffee, index) => {
             const cupWrapper = document.createElement('div');
-            cupWrapper.className = 'absolute w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 cursor-pointer overflow-visible transform transition-all duration-300 hover:scale-125 pointer-events-auto z-40';
+            cupWrapper.className = 'relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 cursor-pointer overflow-visible transform transition-all duration-300 hover:-translate-y-2 pointer-events-auto z-40';
             
             const img = document.createElement('img');
             img.src = coffee.img;
-            img.className = 'w-full h-full object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]';
+            img.className = 'w-full h-full object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300';
             
             cupWrapper.appendChild(img);
             orbitContainer.appendChild(cupWrapper);
@@ -974,48 +991,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const cups = orbitContainer.querySelectorAll('div');
-
-        function updateOrbitPositions() {
-            const radii = getRadii();
-            cups.forEach((cup, i) => {
-                const angle = rotationAngle + (i * (360 / totalCups));
-                const rad = angle * (Math.PI / 180);
-                const x = Math.cos(rad) * radii.x;
-                const y = Math.sin(rad) * radii.y;
-                
-                // Adding depth sorting (closer cups should have higher z-index and be slightly larger)
-                const zIndex = Math.round((Math.sin(rad) + 1) * 50) + 10;
-                const scale = ((Math.sin(rad) + 1) * 0.2) + 0.8; // scale between 0.8 and 1.2
-                
-                cup.style.zIndex = zIndex;
-
-                gsap.to(cup, {
-                    x: x,
-                    y: y,
-                    scale: scale,
-                    duration: 0.1,
-                    ease: "none"
-                });
-            });
-        }
-
-        // Initialize positions
-        updateOrbitPositions();
-
-        // Handle Resize
-        window.addEventListener('resize', updateOrbitPositions);
-
-        // Animate orbit slowly
-        gsap.to({ value: 0 }, {
-            value: 360,
-            duration: 25, // slower rotation
-            repeat: -1,
-            ease: "none",
-            onUpdate: function() {
-                rotationAngle = this.targets()[0].value;
-                updateOrbitPositions();
-            }
-        });
 
         let fallbackTimeout;
         let changeTimeout;
@@ -1039,15 +1014,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 cups.forEach((cup, idx) => {
                     const img = cup.querySelector('img');
                     if (idx === index) {
-                        cup.classList.add('scale-125', 'z-50');
+                        cup.classList.add('scale-110', '-translate-y-4');
                         if (img) {
                             img.classList.remove('drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]');
-                            img.classList.add('drop-shadow-[0_0_30px_rgba(200,80,0,0.9)]');
+                            img.classList.add('drop-shadow-[0_0_20px_rgba(213,160,113,0.8)]');
                         }
                     } else {
-                        cup.classList.remove('scale-125', 'z-50');
+                        cup.classList.remove('scale-110', '-translate-y-4');
                         if (img) {
-                            img.classList.remove('drop-shadow-[0_0_30px_rgba(200,80,0,0.9)]');
+                            img.classList.remove('drop-shadow-[0_0_20px_rgba(213,160,113,0.8)]');
                             img.classList.add('drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]');
                         }
                     }
@@ -1071,6 +1046,15 @@ document.addEventListener("DOMContentLoaded", () => {
             if(displayPrice) { displayPrice.style.opacity = '0'; displayPrice.style.transform = 'translateY(15px)'; }
             if(displayIntensity) { displayIntensity.style.opacity = '0'; displayIntensity.style.transform = 'translateY(15px)'; }
             if(displayRoast) { displayRoast.style.opacity = '0'; displayRoast.style.transform = 'translateY(15px)'; }
+
+            // Restart Video immediately on click
+            if (machineVideo) {
+                machineVideo.currentTime = 0;
+                machineVideo.play().catch(e => {
+                    console.log('Video autoplay blocked:', e);
+                    fallbackTimeout = setTimeout(triggerNextCup, 4000);
+                });
+            }
 
             changeTimeout = setTimeout(() => {
                 trayImg.src = coffee.img;
@@ -1096,14 +1080,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if(displayIntensity) { displayIntensity.style.opacity = '1'; displayIntensity.style.transform = 'translateY(0)'; }
                 if(displayRoast) { displayRoast.style.opacity = '1'; displayRoast.style.transform = 'translateY(0)'; }
                 
-                // Play Video
-                if (machineVideo) {
-                    machineVideo.currentTime = 0;
-                    machineVideo.play().catch(e => {
-                        console.log('Video autoplay blocked:', e);
-                        fallbackTimeout = setTimeout(triggerNextCup, 4000);
-                    });
-                } else {
+                if (!machineVideo) {
                     fallbackTimeout = setTimeout(triggerNextCup, 4000);
                 }
             }, 400); // Wait for fade out
