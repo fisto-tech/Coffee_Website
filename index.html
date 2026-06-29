@@ -137,10 +137,10 @@
         <video src="./assets/coffee_main.mp4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0 opacity-80"></video>
 
 
-        <div class="max-w-[1400px] w-full mx-auto px-6 flex flex-col justify-center text-left relative z-20 h-full mt-10">
+        <div class="max-w-[1400px] w-full mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-left relative z-20 h-full mt-10">
             
-            <!-- Content -->
-            <div class="flex flex-col items-start justify-center gap-6 hero-content max-w-2xl md:max-w-3xl">
+            <!-- Content (Left) -->
+            <div class="flex flex-col items-start justify-center gap-6 hero-content max-w-2xl md:max-w-xl lg:max-w-2xl md:w-[45%]">
                 <div class="flex items-center gap-2 text-primary font-serif italic text-xl hero-subtitle">
                     <span>Espresso authentically</span>
                 </div>
@@ -157,6 +157,34 @@
                     <button class="bg-primary text-background px-8 md:px-10 py-3 md:py-3.5 rounded-full font-semibold hover:shadow-[0_0_25px_rgba(213,160,113,0.4)] transition-all duration-300 hover:scale-105">
                         Order Now
                     </button>
+                </div>
+            </div>
+
+            <!-- Additional Content (Right) -->
+            <div class="hidden md:flex flex-col items-end text-right gap-6 hero-content-right md:w-[35%] lg:w-[25%] mt-12 md:mt-0">
+                <!-- Stat Card 1 -->
+                <div class="flex flex-col items-end">
+                    <h3 class="text-4xl lg:text-5xl font-anton text-primary mb-1">15+</h3>
+                    <p class="text-textMain font-medium text-sm lg:text-base uppercase tracking-wider mb-1">Coffee Blends</p>
+                    <p class="text-textMuted text-xs lg:text-sm max-w-[200px]">Curated from the finest farms around the world.</p>
+                </div>
+                
+                <div class="w-12 h-px bg-primary/30 my-2"></div>
+                
+                <!-- Stat Card 2 -->
+                <div class="flex flex-col items-end">
+                    <h3 class="text-4xl lg:text-5xl font-anton text-primary mb-1">100%</h3>
+                    <p class="text-textMain font-medium text-sm lg:text-base uppercase tracking-wider mb-1">Organic Beans</p>
+                    <p class="text-textMuted text-xs lg:text-sm max-w-[200px]">Ethically sourced and roasted with passion.</p>
+                </div>
+                
+                <div class="w-12 h-px bg-primary/30 my-2"></div>
+                
+                <!-- Stat Card 3 -->
+                <div class="flex flex-col items-end">
+                    <h3 class="text-4xl lg:text-5xl font-anton text-primary mb-1">24/7</h3>
+                    <p class="text-textMain font-medium text-sm lg:text-base uppercase tracking-wider mb-1">Fresh Delivery</p>
+                    <p class="text-textMuted text-xs lg:text-sm max-w-[200px]">Delivered to your doorstep in prime condition.</p>
                 </div>
             </div>
         </div>

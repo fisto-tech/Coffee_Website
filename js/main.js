@@ -94,7 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
     tl.fromTo(".hero-subtitle", { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, "-=0.2")
       .fromTo(".hero-title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2 }, "-=0.6")
       .fromTo(".hero-text", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1 }, "-=0.8")
-      .fromTo(".hero-btn-container", { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, "-=0.8");
+      .fromTo(".hero-btn-container", { opacity: 0, y: 20 }, { opacity: 1, y: 0 }, "-=0.8")
+      .fromTo(".hero-content-right > div", { opacity: 0, x: 20 }, { opacity: 1, x: 0, stagger: 0.1, duration: 0.8 }, "-=1.0");
 
     // Wait for at least 3 seconds before hiding preloader
     window.addEventListener('load', () => {
